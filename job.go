@@ -137,8 +137,8 @@ func (j *Job) runOnceConnection(conn *connection, done chan int) {
 		if q == nil {
 			continue
 		}
+		q.SetDesc(conn, j.Name)
 		if q.desc == nil {
-			// this may happen if the metric registration failed
 			level.Warn(q.log).Log("msg", "Skipping query. Collector is nil")
 			continue
 		}
@@ -181,6 +181,7 @@ func (c *connection) connect(job *Job) error {
 	dsn := c.url.String()
 	switch c.url.Scheme {
 	case "mysql":
+		dsn = strings.Replace(dsn, "%40", "@", -1)
 		dsn = strings.TrimPrefix(dsn, "mysql://")
 	case "clickhouse":
 		dsn = "tcp://" + strings.TrimPrefix(dsn, "clickhouse://")
